@@ -1,5 +1,5 @@
 #lang eopl
-;Autores: Nombre1 Codigo1, Nombre2 Codigo2, ...
+;Autores: Santiago Criollo 2380661, Nombre2 Codigo2, ...
 
 #|
   Batería de pruebas del interpretador de TxLang-UV.
@@ -73,16 +73,125 @@
 
 (eopl:printf "~%== Primera entrega ==~%")
 
-(prueba "literal entero" "42" "42")
-(ida-y-vuelta "unparse de un literal" "42")
+;; unparse y volver a analizar da un árbol igual al de partida.
+(define ida-y-vuelta-arbol
+  (lambda (etiqueta texto)
+    (verificar etiqueta
+               (if (equal? (scan&parse texto) (scan&parse (unparse (scan&parse texto))))
+                   "arbol igual"
+                   "arbol distinto")
+               "arbol igual")))
 
-;; Agregue aquí las pruebas de la primera entrega: literales de cada clase,
-;; let, ref/deref/set, begin, if con elif, while, cada primitiva, proc y
-;; apply, letrec con recursión mutua. Por ejemplo:
-;;
-;; (prueba "let y suma" "let a = 1, b = 2 in +(a, b) end" "3")
-;; (prueba "una celda" "let c = ref(0) in begin set c := 5; deref(c) end end" "5")
-;; (prueba-rechazo "if con prueba no booleana" "if 1 then 2 else 3 end")
+;; --- Literales y comentarios
+(prueba "literal entero" "42" "42")
+(prueba "entero negativo" "-7" "-7")
+(prueba "flotante" "3.14" "3.14")
+(prueba "cadena" "\"hola\"" "\"hola\"")
+(prueba "caracter" "'a'" "'a'")
+(prueba "booleano y unit" "begin true; false; unit end" "unit")
+(prueba "comentario de linea" "// un comentario\n42" "42")
+(prueba "comentario de bloque" "#| varias\n lineas |# 42" "42")
+
+;; --- unparse
+(ida-y-vuelta "unparse de un literal" "42")
+(verificar "unparse escribe el texto canonico"
+           (unparse (scan&parse "let a=1,b=2 in +(a,b) end"))
+           "let a = 1, b = 2 in +(a, b) end")
+(ida-y-vuelta-arbol "arbol estable con if y while"
+  "if true then while false do 1 end elif false then 2 else 3 end")
+(ida-y-vuelta-arbol "arbol estable con letrec y proc"
+  "letrec int f (n: int) = apply f (n) in apply proc (g: (int, bool -> ref(int))) g end (f) end")
+(ida-y-vuelta-arbol "arbol estable con atomic, record y field"
+  "record Cuenta { titular: string, saldo: ref(int) }
+   let c = new Cuenta { titular = \"Ana\", saldo = ref(1) } in
+     atomic set field(c, saldo) := 2 onfail (m) print(m) end
+   end")
+
+;; --- let, ref/deref/set y begin
+(prueba "let y suma" "let a = 1, b = 2 in +(a, b) end" "3")
+(prueba "las ligaduras de un let no se ven entre si"
+        "let a = 1 in let a = 2, b = a in b end end" "1")
+(prueba "una celda" "let c = ref(0) in begin set c := 5; deref(c) end end" "5")
+(prueba "dos nombres para una celda"
+        "let c = ref(1) in let d = c in begin set d := 9; deref(c) end end end" "9")
+(prueba "begin devuelve el ultimo" "begin 1; 2; 3 end" "3")
+
+;; --- Condicional y ciclo
+(prueba "if con elif" "if false then 1 elif false then 2 elif true then 3 else 4 end" "3")
+(prueba-rechazo "if con prueba no booleana" "if 1 then 2 else 3 end")
+(prueba-rechazo "if sin else" "if true then 1 end")
+(prueba "while suma 0..4"
+        "let i = ref(0), s = ref(0) in
+           begin
+             while <(deref(i), 5) do
+               begin set s := +(deref(s), deref(i)); set i := +(deref(i), 1) end
+             end;
+             deref(s)
+           end
+         end"
+        "10")
+
+;; --- Primitivas
+(prueba "aritmetica entera" "-(10, *(2, 3))" "4")
+(prueba "division entera" "/(7, 2)" "3")
+(prueba "modulo" "%(7, 2)" "1")
+(prueba "aritmetica flotante" "+(1.5, 2.25)" "3.75")
+(prueba-rechazo "suma de entero y flotante" "+(1, 2.0)")
+(prueba-rechazo "modulo de flotantes" "%(7.0, 2.0)")
+(prueba-rechazo "division por cero" "/(1, 0)")
+(prueba "relacionales" "begin <(1, 2); >=(2, 3) end" "false")
+(prueba "igualdad de cadenas" "==(\"a\", \"a\")" "true")
+(prueba "desigualdad" "!=(1, 2)" "true")
+(prueba "booleanas" "and(true, not(false))" "true")
+(prueba-rechazo "and con un entero" "and(true, 1)")
+(prueba "concat" "concat(\"ab\", \"cd\")" "\"abcd\"")
+(prueba "length" "length(\"hola\")" "4")
+(prueba "to-string" "to-string(12)" "\"12\"")
+(prueba "to-number entero" "to-number(\"41\")" "41")
+(prueba "to-number flotante" "to-number(\"2.5\")" "2.5")
+(prueba-rechazo "to-number de texto no numerico" "to-number(\"abc\")")
+(prueba "print devuelve unit" "print(\"hola desde TxLang-UV\")" "unit")
+
+;; --- Procedimientos y clausuras
+(prueba "proc y apply" "apply proc (x: int, y: int) +(x, y) end (3, 4)" "7")
+(prueba "alcance lexico"
+        "let x = 10 in
+           let f = proc (y: int) +(x, y) end in
+             let x = 100 in apply f (1) end
+           end
+         end"
+        "11")
+(prueba "procedimiento de orden superior"
+        "let dos-veces = proc (f: (int -> int), v: int) apply f (apply f (v)) end
+         in apply dos-veces (proc (n: int) *(n, 2) end, 5) end"
+        "20")
+(prueba "referencia como argumento"
+        "let c = ref(10), inc = proc (r: ref(int)) set r := +(deref(r), 1) end
+         in begin apply inc (c); apply inc (c); deref(c) end end"
+        "12")
+(prueba-rechazo "aridad equivocada" "apply proc (x: int) x end (1, 2)")
+(prueba-rechazo "apply de un no procedimiento" "apply 3 (1)")
+
+;; --- letrec y recursión mutua
+(prueba "factorial con letrec"
+        "letrec int fact (n: int) =
+                  if ==(n, 0) then 1 else *(n, apply fact (-(n, 1))) end
+         in apply fact (6) end"
+        "720")
+(prueba "recursion mutua par/impar"
+        "letrec
+           bool par (n: int) = if ==(n, 0) then true else apply impar (-(n, 1)) end
+           bool impar (n: int) = if ==(n, 0) then false else apply par (-(n, 1)) end
+         in apply par (10) end"
+        "true")
+
+;; --- Errores de ejecución
+(prueba-rechazo "variable no ligada" "x")
+(prueba-rechazo "deref de un no referencia" "deref(3)")
+(prueba-rechazo "set sobre un no referencia" "set 3 := 4")
+
+;; --- Lo que llega en la segunda entrega se analiza pero no se evalúa todavía
+(prueba-rechazo "atomic aun no se evalua" "atomic 1 onfail (m) 2 end")
 
 ;;; ==========================================================
 ;;; Segunda entrega: transacciones, registros y tipos
