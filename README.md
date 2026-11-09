@@ -18,22 +18,20 @@ en el Campus Virtual. Sin ella, o con algún dato incompleto, la entrega
 pierde el 20 %; quien no aparezca aquí no cuenta como parte del grupo.
 
 | Nombre completo                    | Código       | Correo institucional                   |
-|------------------------------------|--------------|----------------------------------------|
+| ---------------------------------- | ------------ | -------------------------------------- |
 | santiago alexander criollo ordoñez | 2380661-3743 | santiago.criollo@correounivalle.edu.co |
-|                                    |              |                                        |
-|                                    |              |                                        |
-|                                    |              |                                        |
+| Luis David Mendoza Manzano         | 2067621      | mendoza.luis@correounivalle.edu.co     |
 
 ## Entregas
 
 Las dos entregas se hacen sobre este mismo fork; lo que cambia es el estado
 del repositorio en cada fecha.
 
-| Entrega | Fecha y hora | Alcance | Nota |
-|---|---|---|---|
-| Primera | lunes 9 de noviembre de 2026, 17:59 | Especificación léxica y gramatical, datatypes del árbol, `unparse`, ambiente, almacén y `value-of` de todo lo que no sea transacciones, registros ni tipos; al menos 15 programas de prueba | Sin nota directa; no hacerla descuenta el 25 % de la nota del proyecto |
-| Final | lunes 14 de diciembre de 2026, 17:59 | Todo lo anterior, más transacciones anidables, registros, chequeador de tipos, los dos informes en `docs/` y al menos 20 programas de prueba con 5 mal tipados | Es la que se califica |
-| Sustentación | martes 15 de diciembre de 2026 | Individual; su nota, entre 0 y 1, multiplica la del grupo | |
+| Entrega      | Fecha y hora                         | Alcance                                                                                                                                                                                     | Nota                                                                   |
+| ------------ | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Primera      | lunes 9 de noviembre de 2026, 17:59  | Especificación léxica y gramatical, datatypes del árbol, `unparse`, ambiente, almacén y `value-of` de todo lo que no sea transacciones, registros ni tipos; al menos 15 programas de prueba | Sin nota directa; no hacerla descuenta el 25 % de la nota del proyecto |
+| Final        | lunes 14 de diciembre de 2026, 17:59 | Todo lo anterior, más transacciones anidables, registros, chequeador de tipos, los dos informes en `docs/` y al menos 20 programas de prueba con 5 mal tipados                              | Es la que se califica                                                  |
+| Sustentación | martes 15 de diciembre de 2026       | Individual; su nota, entre 0 y 1, multiplica la del grupo                                                                                                                                   |                                                                        |
 
 ## Cómo se entrega
 

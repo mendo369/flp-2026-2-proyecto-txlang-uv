@@ -1,5 +1,5 @@
 #lang eopl
-;Autores: Santiago Criollo 2380661, Nombre2 Codigo2, ...
+;Autores: Santiago Criollo 2380661, Luis David Mendoza Manzano 2067621
 
 #|
   Batería de pruebas del interpretador de TxLang-UV.
