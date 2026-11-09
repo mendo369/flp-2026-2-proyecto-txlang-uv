@@ -1,5 +1,5 @@
 #lang eopl
-;Autores: Santiago Criollo 2380661, Nombre2 Codigo2, ...
+;Autores: Santiago Criollo 2380661, Luis David Mendoza Manzano 2067621
 
 #|
   TAD almacén: celdas que se reservan con ref, se leen con deref y se
