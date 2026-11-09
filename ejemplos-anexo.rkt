@@ -1,5 +1,5 @@
 #lang eopl
-;Autores: Nombre1 Codigo1, Nombre2 Codigo2, ...
+;Autores: Santiago Criollo 2380661, Nombre2 Codigo2, ...
 
 #|
   Los diez ejemplos del anexo del enunciado, copiados literalmente del
